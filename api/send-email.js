@@ -19,6 +19,10 @@ module.exports = async (req, res) => {
   try {
     const { email, code } = req.body;
     
+    if (!email || !code) {
+      return res.status(400).json({ error: 'Email and code are required' });
+    }
+
     await transporter.sendMail({
       from: 'Hike Cavite <noreply.hikecavite@gmail.com>',
       to: email,
