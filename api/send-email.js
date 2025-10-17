@@ -1,7 +1,4 @@
-export default async function handler(req, res) {
-  console.log('✅ Function is working');
-  
-  // CORS headers
+module.exports = (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -10,25 +7,13 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  try {
-    const { email, code } = req.body;
-    
-    console.log(`📧 Would send email to: ${email} with code: ${code}`);
-    
-    // For now, just return success without actually sending email
-    // This proves the function works
-    res.status(200).json({ 
-      success: true, 
-      message: 'Email would be sent to: ' + email,
-      code: code
-    });
-
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: error.message });
-  }
-}
+  const { email, code } = req.body;
+  
+  // Just return success for now - prove the API works
+  res.status(200).json({ 
+    success: true, 
+    message: 'API is working',
+    email: email,
+    code: code 
+  });
+};
