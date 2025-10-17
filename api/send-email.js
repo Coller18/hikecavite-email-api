@@ -1,17 +1,15 @@
-import nodemailer from 'nodemailer';
+const nodemailer = require('nodemailer');
 
-// Simple transporter - remove auth temporarily to test
+// Create transporter
 const transporter = nodemailer.createTransporter({
   service: 'gmail',
   auth: {
-    user: 'noreply.hikecavite@gmail.com',
-    pass: 'sgpzpnfgpboazqux' // Your app password here
+    user: process.env.GMAIL_USER || 'noreply.hikecavite@gmail.com',
+    pass: process.env.GMAIL_APP_PASSWORD || 'sgpzpnfgpboazqux'
   }
 });
 
-export default async function handler(req, res) {
-  console.log('🚀 Email API called');
-  
+module.exports = async (req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -27,43 +25,30 @@ export default async function handler(req, res) {
 
   try {
     const { email, code } = req.body;
-    console.log('📧 Received request for:', email);
 
     if (!email || !code) {
       return res.status(400).json({ error: 'Email and code required' });
     }
 
-    console.log('📤 Attempting to send email...');
+    console.log(`Sending email to ${email} with code ${code}`);
 
     // Send email
-    const mailResult = await transporter.sendMail({
+    await transporter.sendMail({
       from: 'Hike Cavite <noreply.hikecavite@gmail.com>',
       to: email,
       subject: 'Hike Cavite - Verification Code',
-      html: `
-        <div style="font-family: Arial, sans-serif;">
-          <h2 style="color: #C2A634;">Hike Cavite</h2>
-          <p>Your verification code is: <strong>${code}</strong></p>
-          <p>This code will expire in 10 minutes.</p>
-        </div>
-      `
+      html: `Your verification code is: <strong>${code}</strong>`
     });
-
-    console.log('✅ Email sent successfully:', mailResult.messageId);
 
     res.status(200).json({ 
       success: true, 
-      message: 'Verification code sent successfully'
+      message: 'Email sent successfully' 
     });
-    
+
   } catch (error) {
-    console.error('❌ Email error:', error);
-    
-    // More specific error response
+    console.error('Email error:', error);
     res.status(500).json({ 
-      success: false,
-      error: error.message,
-      code: error.code
+      error: 'Failed to send email: ' + error.message 
     });
   }
-}
+};
