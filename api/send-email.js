@@ -1,15 +1,17 @@
 import nodemailer from 'nodemailer';
 
-// Create transporter
+// Simple transporter - remove auth temporarily to test
 const transporter = nodemailer.createTransporter({
   service: 'gmail',
   auth: {
-    user: process.env.GMAIL_USER || 'noreply.hikecavite@gmail.com',
-    pass: process.env.GMAIL_APP_PASSWORD || 'sgpzpnfgpboazqux'
+    user: 'noreply.hikecavite@gmail.com',
+    pass: 'sgpzpnfgpboazqux' // Your app password here
   }
 });
 
 export default async function handler(req, res) {
+  console.log('🚀 Email API called');
+  
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -25,31 +27,24 @@ export default async function handler(req, res) {
 
   try {
     const { email, code } = req.body;
+    console.log('📧 Received request for:', email);
 
     if (!email || !code) {
       return res.status(400).json({ error: 'Email and code required' });
     }
 
-    console.log(`📧 Sending email to: ${email} with code: ${code}`);
+    console.log('📤 Attempting to send email...');
 
-    // Send actual email
+    // Send email
     const mailResult = await transporter.sendMail({
       from: 'Hike Cavite <noreply.hikecavite@gmail.com>',
       to: email,
       subject: 'Hike Cavite - Verification Code',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #C2A634; text-align: center;">Hike Cavite</h2>
-          <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; border-left: 4px solid #C2A634;">
-            <p style="font-size: 16px;">Your verification code is:</p>
-            <h1 style="color: #C2A634; text-align: center; font-size: 32px; letter-spacing: 5px; margin: 20px 0;">
-              ${code}
-            </h1>
-            <p style="font-size: 14px; color: #666;">This code will expire in 10 minutes.</p>
-          </div>
-          <p style="font-size: 12px; color: #999; text-align: center; margin-top: 20px;">
-            If you didn't request this code, please ignore this email.
-          </p>
+        <div style="font-family: Arial, sans-serif;">
+          <h2 style="color: #C2A634;">Hike Cavite</h2>
+          <p>Your verification code is: <strong>${code}</strong></p>
+          <p>This code will expire in 10 minutes.</p>
         </div>
       `
     });
@@ -58,16 +53,17 @@ export default async function handler(req, res) {
 
     res.status(200).json({ 
       success: true, 
-      message: 'Verification code sent successfully',
-      email: email,
-      code: code
+      message: 'Verification code sent successfully'
     });
     
   } catch (error) {
-    console.error('❌ Email sending failed:', error);
+    console.error('❌ Email error:', error);
+    
+    // More specific error response
     res.status(500).json({ 
       success: false,
-      error: 'Failed to send email: ' + error.message
+      error: error.message,
+      code: error.code
     });
   }
 }
