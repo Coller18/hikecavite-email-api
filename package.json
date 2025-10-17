@@ -2,7 +2,7 @@
   "name": "hikecavite-email-api",
   "version": "1.0.0",
   "engines": {
-    "node": "18.x"
+    "node": "22.x"
   },
   "dependencies": {
     "nodemailer": "^6.9.7"
