@@ -1,69 +1,34 @@
-import nodemailer from 'nodemailer';
+const nodemailer = require('nodemailer');
 
-// Simple transporter - remove auth temporarily to test
-const transporter = nodemailer.createTransporter({
+// FIX: Use createTransport (not createTransporter)
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'noreply.hikecavite@gmail.com',
-    pass: 'sgpzpnfgpboazqux' // Your app password here
+    pass: 'sgpzpnfgpboazqux'
   }
 });
 
-export default async function handler(req, res) {
-  console.log('🚀 Email API called');
-  
-  // CORS headers
+module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
     const { email, code } = req.body;
-    console.log('📧 Received request for:', email);
-
-    if (!email || !code) {
-      return res.status(400).json({ error: 'Email and code required' });
-    }
-
-    console.log('📤 Attempting to send email...');
-
-    // Send email
-    const mailResult = await transporter.sendMail({
+    
+    await transporter.sendMail({
       from: 'Hike Cavite <noreply.hikecavite@gmail.com>',
       to: email,
       subject: 'Hike Cavite - Verification Code',
-      html: `
-        <div style="font-family: Arial, sans-serif;">
-          <h2 style="color: #C2A634;">Hike Cavite</h2>
-          <p>Your verification code is: <strong>${code}</strong></p>
-          <p>This code will expire in 10 minutes.</p>
-        </div>
-      `
+      html: `Your code: <strong>${code}</strong>`
     });
 
-    console.log('✅ Email sent successfully:', mailResult.messageId);
-
-    res.status(200).json({ 
-      success: true, 
-      message: 'Verification code sent successfully'
-    });
-    
+    res.status(200).json({ success: true, message: 'Email sent' });
   } catch (error) {
-    console.error('❌ Email error:', error);
-    
-    // More specific error response
-    res.status(500).json({ 
-      success: false,
-      error: error.message,
-      code: error.code
-    });
+    res.status(500).json({ error: error.message });
   }
-}
+};

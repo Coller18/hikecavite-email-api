@@ -1,7 +1,3 @@
 {
-  "name": "hikecavite-email-api",
-  "type": "module",
-  "dependencies": {
-    "nodemailer": "^6.9.7"
-  }
+  "name": "hikecavite-email-api"
 }
