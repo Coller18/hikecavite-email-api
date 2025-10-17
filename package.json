@@ -1,6 +1,6 @@
 {
   "name": "hikecavite-email-api",
-  "type": "module",
+  "version": "1.0.0",
   "dependencies": {
     "nodemailer": "^6.9.7"
   }
