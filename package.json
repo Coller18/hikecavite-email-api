@@ -1,7 +1,5 @@
 {
   "name": "hikecavite-email-api",
-  "version": "1.0.0",
-  "description": "Email API for Hike Cavite",
   "type": "module",
   "dependencies": {
     "nodemailer": "^6.9.7"
